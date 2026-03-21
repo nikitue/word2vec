@@ -47,3 +47,16 @@ class SkipGramNegativeSampling:
         self.W_target[target_id] -= self.l_rate * grad_target
         self.W_context[context_id] -= self.l_rate * grad_true_context_word
         self.W_context[negative_ids] -= self.l_rate * grad_negative_sample
+
+        return loss
+
+    def get_negative_samples(self, context_id, num_samples=5):
+        #there is a slight chance of picking another context word as a negative sample
+        #but in huge datasets the chance and effect it may have are statistically small
+        negative_ids = []
+        while len(negative_ids) < num_samples:
+            rand_id = np.random.randint(0, self.vocab_size)
+           # Don't pick the true context word as a negative sample 
+            if rand_id != context_id:
+                negative_ids.append(rand_id)
+        return negative_ids

@@ -1,5 +1,7 @@
+import random
 import numpy
 from data import TextProcessor
+from model import SkipGramNegativeSampling
 
 def main():
     print("Loading and processing text...")
@@ -13,15 +15,38 @@ def main():
     print(f"Vocabulary size: {vocabulary_size}")
     print(f"Training pairs: {len(training_data)}")
 
-    print("Initializing model...")
     #initialize model
+    print("Initializing model...")
+    embedding_dim = 50
+    learning_rate = 0.025
+    num_negative_samples = 5
+    epochs = 5
 
-    print("Start training loop...")
+    model = SkipGramNegativeSampling(vocabulary_size, embedding_dim, learning_rate)
+    print(f"Dimensions: {embedding_dim}")
+    print(f"Negative Samples per pair: {num_negative_samples}\n")
+
     #training loop
+    print("Start training loop...")
+    for epoch in range(epochs):
+        # Shuffle data at the start of each epoch for better SGD
+        random.shuffle(training_data)
+        total_loss = 0
+        
+        for target_id, context_id in training_data:
+            # Generate the random negative samples
+            negative_ids = model.get_negative_samples(context_id, num_negative_samples)
+            
+            # Do a single train step (forward + backward pass and update weights) 
+            loss = model.train_step(target_id, context_id, negative_ids)
+            total_loss += loss
+            
+        avg_loss = total_loss / len(training_data)
+        print(f"Epoch {epoch + 1}/{epochs} ; Average Loss: {avg_loss:.4f}")
 
-    print("Training complete. Testing embeddings...")
     #test embeddings
-    pass
+    print("Training complete. Testing embeddings...")
+    #todo
 
 if __name__ == "__main__":
     main()
