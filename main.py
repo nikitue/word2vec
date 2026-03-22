@@ -67,8 +67,10 @@ def main():
             print(results)
         else:
             for sim_word, score in results:
-                print(f"   - {sim_word} (Score: {score:.3f})")
-
+               print(f"   - {sim_word} (Score: {score:.3f})")
+    
+    #save model
+    model.save_embeddings(word_to_id)
 
 if __name__ == "__main__":
     main()

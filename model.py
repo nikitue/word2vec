@@ -1,5 +1,6 @@
 import numpy as np
 import math 
+import json
 
 def sigmoid(x):
     x = np.clip(x, -10, 10)  # Prevents overflow if dot product gets too large/small
@@ -33,12 +34,6 @@ class SkipGramNegativeSampling:
 
         #loss
         loss = -np.log(p_pos) - np.sum(np.log(1 - p_neg)) #not really needed, helpful for monitoring
-
-        if not (math.isnan(p_pos) and np.isnan(p_neg).all() and np.isnan(err_pos) and np.isnan(err_neg).all() and np.isnan(z_pos) and np.isnan(z_neg).all()):
-            print("z_pos:", z_pos, "p_pos:", p_pos)
-            print("z_neg:", z_neg, "p_neg:", p_neg)
-            print("err_pos:", err_pos, "err_neg:", err_neg)
-            print(f"Loss: {loss:.4f}")
 
         #gradients
         grad_target = err_pos * v_c * np.dot(err_neg, v_n) 
@@ -95,3 +90,15 @@ class SkipGramNegativeSampling:
         # Format the output for easy reading
         results = [(id_to_word[idx], similarities[idx]) for idx in closest_ids]
         return results
+
+    def save_embeddings(self, word_to_id, filename="word2vec"):
+        # Save the NumPy matrix
+        matrix_path = f"{filename}_matrix.npy"
+        np.save(matrix_path, self.W_target)
+        
+        # Save the dictionary mapping as a JSON file
+        vocab_path = f"{filename}_vocab.json"
+        with open(vocab_path, "w", encoding="utf-8") as f:
+            json.dump(word_to_id, f, indent=4)
+            
+        print(f"Model successfully saved to {matrix_path} and {vocab_path}")
