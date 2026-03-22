@@ -20,7 +20,7 @@ def main():
     embedding_dim = 50
     initial_lr = 0.025
     num_negative_samples = 5
-    epochs = 5
+    epochs = 15
 
     processed_pairs = 0
     total_pairs = len(training_data) * epochs
