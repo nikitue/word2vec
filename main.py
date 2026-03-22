@@ -18,11 +18,14 @@ def main():
     #initialize model
     print("Initializing model...")
     embedding_dim = 50
-    learning_rate = 0.025
+    initial_lr = 0.025
     num_negative_samples = 5
     epochs = 5
 
-    model = SkipGramNegativeSampling(vocabulary_size, embedding_dim, learning_rate)
+    processed_pairs = 0
+    total_pairs = len(training_data) * epochs
+
+    model = SkipGramNegativeSampling(vocabulary_size, embedding_dim, initial_lr)
     print(f"Dimensions: {embedding_dim}")
     print(f"Negative Samples per pair: {num_negative_samples}\n")
 
@@ -34,12 +37,21 @@ def main():
         total_loss = 0
         
         for target_id, context_id in training_data:
+            #linearly reduce learning rate
+            progress = processed_pairs / total_pairs
+            model.l_rate = initial_lr * (1.0 - progress)
+            
+            # Don't reach absolute zero
+            if model.l_rate < 0.0001:
+                model.l_rate = 0.0001
+
             # Generate the random negative samples
             negative_ids = model.get_negative_samples(context_id, num_negative_samples)
             
             # Do a single train step (forward + backward pass and update weights) 
             loss = model.train_step(target_id, context_id, negative_ids)
             total_loss += loss
+            processed_pairs += 1
             
         avg_loss = total_loss / len(training_data)
         print(f"Epoch {epoch + 1}/{epochs} ; Average Loss: {avg_loss:.4f}")

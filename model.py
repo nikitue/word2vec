@@ -1,4 +1,5 @@
 import numpy as np
+import math 
 
 def sigmoid(x):
     x = np.clip(x, -10, 10)  # Prevents overflow if dot product gets too large/small
@@ -30,18 +31,24 @@ class SkipGramNegativeSampling:
         err_pos = p_pos - 1
         err_neg = p_neg # - 0
 
-        print("z_pos:", z_pos, "p_pos:", p_pos)
-        print("z_neg:", z_neg, "p_neg:", p_neg)
-        print("err_pos:", err_pos, "err_neg:", err_neg)
-    
         #loss
         loss = -np.log(p_pos) - np.sum(np.log(1 - p_neg)) #not really needed, helpful for monitoring
-        print(f"Loss: {loss:.4f}")
+
+        if not (math.isnan(p_pos) and np.isnan(p_neg).all() and np.isnan(err_pos) and np.isnan(err_neg).all() and np.isnan(z_pos) and np.isnan(z_neg).all()):
+            print("z_pos:", z_pos, "p_pos:", p_pos)
+            print("z_neg:", z_neg, "p_neg:", p_neg)
+            print("err_pos:", err_pos, "err_neg:", err_neg)
+            print(f"Loss: {loss:.4f}")
 
         #gradients
         grad_target = err_pos * v_c * np.dot(err_neg, v_n) 
         grad_true_context_word  = err_pos * v_c
         grad_negative_sample = np.outer(err_neg, v_w)
+
+        #clip gradients to prevent exploding gradients
+        grad_target = np.clip(grad_target, -1.0, 1.0)
+        grad_true_context_word = np.clip(grad_true_context_word, -1.0, 1.0)
+        grad_negative_sample = np.clip(grad_negative_sample, -1.0, 1.0)
 
         #backward pass
         self.W_target[target_id] -= self.l_rate * grad_target
