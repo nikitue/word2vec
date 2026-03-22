@@ -46,7 +46,17 @@ def main():
 
     #test embeddings
     print("Training complete. Testing embeddings...")
-    #todo
+    test_words = ["alice", "rabbit", "queen"]
+    
+    for word in test_words:
+        print(f"\nNearest neighbors to '{word}':")
+        results = model.get_similar_words(word, word_to_id, id_to_word, top_k=4)
+        if isinstance(results, str):
+            print(results)
+        else:
+            for sim_word, score in results:
+                print(f"   - {sim_word} (Score: {score:.3f})")
+
 
 if __name__ == "__main__":
     main()

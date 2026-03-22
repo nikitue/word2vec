@@ -55,8 +55,36 @@ class SkipGramNegativeSampling:
         #but in huge datasets the chance and effect it may have are statistically small
         negative_ids = []
         while len(negative_ids) < num_samples:
-            rand_id = np.random.randint(0, self.vocab_size)
+            rand_id = np.random.randint(0, self.vocabulary_size)
            # Don't pick the true context word as a negative sample 
             if rand_id != context_id:
                 negative_ids.append(rand_id)
         return negative_ids
+    
+    def get_similar_words(self, word, word_to_id, id_to_word, top_k=5):
+        """
+        Finds the closest words in the embedding space using Cosine Similarity.
+        """
+
+        if word not in word_to_id:
+            return f"Word '{word}' not in vocabulary."
+            
+        word_id = word_to_id[word]
+        target_vec = self.W_target[word_id]
+        
+        # Calculate dot product of target with all embedding vectors
+        dot_products = np.dot(self.W_target, target_vec)
+        
+        # Calculate norms
+        matrix_norms = np.linalg.norm(self.W_target, axis=1)
+        target_norm = np.linalg.norm(target_vec)
+        
+        # Divide dot products by the product of the norms
+        similarities = dot_products / (matrix_norms * target_norm + 1e-8) #prevent division by zero
+        
+        #get top_k closest words, excluding the word itself at index 0
+        closest_ids = np.argsort(similarities)[::-1][1:top_k+1]
+        
+        # Format the output for easy reading
+        results = [(id_to_word[idx], similarities[idx]) for idx in closest_ids]
+        return results
