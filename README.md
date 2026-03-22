@@ -38,7 +38,7 @@ The main motivation of the choice of using Skip-gram architecture is curiosity, 
 A standard Softmax output layer requires calculating the dot product for every single word in the vocabulary for every training pair, which is excessively slow in CPU-bound Python. By implementing Negative Sampling, the architecture reduces a massive multi-class classification problem into a series of lightweight binary classification tasks. For each positive pair, the network only updates the weights for the target word, the 1 true context word, and k random negative samples.
 
 ### Gradient Derivation
-The main source for learning about making a word2vec implementation comes from the research paper "word2vec Parameter Learning Explained" by Xin Rong. The presented formulas in the paper regarding gradients for negative sampling are implemented. Before implementation, the formulas were recalculated manually (with a pen and notebook) to understand them thoroughly. 
+The main source for learning about making a word2vec implementation comes from the research paper "word2vec Parameter Learning Explained" by Xin Rong (https://arxiv.org/pdf/1411.2738). The presented formulas in the paper regarding gradients for negative sampling are implemented. Before implementation, the formulas were recalculated manually (with a pen and notebook) to understand them thoroughly. 
 
 ## Numerical Stability
 To prevent exploding gradients and NaN propagation (a problem encountered in a previous version), gradient clipping is utilized. Furthermore, a global linear learning rate decay was implemented across the entire training cycle to allow the vectors to settle into precise semantic clusters during the final epochs.
